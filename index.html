@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="main.css">
+
+    <title>Document</title>
+</head>
+
+<header class="width">
+    <h1 class="mainTitle">Authenticate Yourself</h1>
+</header>
+<main class="width">
+    <div id="emailRegister">
+        <input type="text" placeholder="name" id="userName" class="textArea" maxlength="40" size="18" />
+        <input type="email" placeholder="email" id="userEmail" class="textArea" maxlength="40" size="18" />
+        <input type="password" placeholder="password" maxlength="10" size="18" id="userPassword" class="textArea" />
+    </div>
+    <div id="buttonsRegister">
+        <button id="loginEmail" class="button">LOGIN</button>
+        <button id="signUpEmail" class="button">SIGN UP</button>
+        <button id="logOut" class="button hide">LOG OUT</button>
+    </div>
+</main>
+<script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
+
+<script src="main.js"></script>
+<script>loginApplication().start()</script>
+
+</body>
+
+</html>

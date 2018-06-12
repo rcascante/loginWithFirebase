@@ -1,4 +1,4 @@
-function loginApplication() {
+function createLogin() {
     let userEmail;
     let userPassword;
     let email;
@@ -6,11 +6,10 @@ function loginApplication() {
     let loginButton;
     let registerButton;
     let logOutButton;
-    let userNameTitle;
-    let userName;
+    let loginMessageTitle;
     let database;
-    let userRef;
-    let allUsers;
+    let uid;
+    let userReference;
 
 
     const config = {
@@ -23,8 +22,7 @@ function loginApplication() {
     };
 
     function start() {
-        userNameTitle = document.querySelector('.mainTitle');
-        userName = document.querySelector('#userName');
+        loginMessageTitle = document.querySelector('.mainTitle');
         userEmail = document.querySelector('#userEmail');
         userPassword = document.querySelector('#userPassword');
         loginButton = document.querySelector('#loginEmail');
@@ -39,21 +37,11 @@ function loginApplication() {
 
         firebase.auth().onAuthStateChanged(firebaseUser => {
             if (firebaseUser) {
-                const userReference = database.ref(`users/${firebaseUser.uid}`);
-                userReference.once('value', snapshot => {
-                    if (!snapshot.val()) {
-                        // User does not exist, create user entry
-                        userReference.set({
-                            email: email,
-                            name: userName.value
-                        });
-                    }
-                });
-                console.log(firebaseUser.uid)
+                uid = firebaseUser.uid;
+                userReference = database.ref(`users/${uid}`);
                 setLoggedUserState();
             } else {
                 console.log('not logged in')
-                setLoggedOutUserState();
             }
         });
     }
@@ -75,44 +63,46 @@ function loginApplication() {
     }
 
     function registerWithEmailWithFirebase(email, password) {
-        firebase.auth().createUserWithEmailAndPassword(email, password);
+        firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorCode, errorMessage);
+            if (errorCode == 'auth/invalid-email') {
+                loginMessageTitle.innerHTML = "Wrong email format";
+            } else if (errorCode == 'auth/weak-password') {
+                loginMessageTitle.innerHTML = "Weak password";
+            }
+        });
     }
 
     function loginWithEmailWithFirebase(email, password) {
-        firebase.auth().signInWithEmailAndPassword(email, password);
+        firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorCode, errorMessage);
+            if (errorCode == 'auth/user-not-found') {
+                loginMessageTitle.innerHTML = "You need to register"
+            } else if (errorCode == 'auth/wrong-password' || errorCode == 'auth/invalid-email') {
+                loginMessageTitle.innerHTML = "Wrong password or email"
+            }
+        });
     }
 
-    function setLoggedUserState() {
-        userName.classList.add('hide');
-        userEmail.classList.add('hide');
-        userPassword.classList.add('hide');
-        loginButton.classList.add('hide');
-        registerButton.classList.add('hide');
-        logOutButton.classList.remove('hide');
-        displayLoggedUserName();
+    function setLoggedUserState(done) {
+        userReference.once('value', snapshot => {
+            if (!snapshot.val()) {
+                userReference.set({
+                    email: email,
+                });
+            }
+        });
+        console.log(uid)
+        setTimeout(function () {
+            window.location = `home.html?userID=${uid}`;
+            done();
+        }, 200);
     }
 
-    function setLoggedOutUserState() {
-        userName.value = '';
-        userEmail.value = '';
-        userPassword.value = '';
-        userName.classList.remove('hide');
-        userEmail.classList.remove('hide');
-        userPassword.classList.remove('hide');
-        loginButton.classList.remove('hide');
-        registerButton.classList.remove('hide');
-        logOutButton.classList.add('hide');
-        displayNotLoggedMessage();
-    }
-
-
-    function displayLoggedUserName() {
-        userNameTitle.innerHTML = `Hello ${userName.value}`;
-    }
-
-    function displayNotLoggedMessage() {
-        userNameTitle.innerHTML = 'Authenticate Yourself';
-    }
 
     return {
         start

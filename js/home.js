@@ -25,7 +25,7 @@ function createHome() {
         refToUsersObject.once('value', function (snapshot) {
             console.log(snapshot.val());
         });
-        getUserId();
+        getUserID();
     }
 
     function setUserNameInTitle(email) {
